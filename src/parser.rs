@@ -202,7 +202,7 @@ fn parse_minipng(png: &Minipng) -> Result<Image, Error> {
                 
                 for j in 0..8 {
                     if (b & (1 << (7 - j))) != 0 {
-                        pixels[i as usize * 8 + j as usize] = Pixel::new((255, 255, 255)); // We store pixels row by row, so we need to invert i and j
+                        pixels[i as usize * 8 + j as usize] = Pixel::new((255, 255, 255));
                     }
                 }
             }
