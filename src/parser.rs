@@ -200,8 +200,12 @@ fn parse_minipng(png: &Minipng) -> Result<Image, Error> {
                 let b = png.data[i as usize];
                 
                 for j in 0..8 {
+                    let pixel_index = i as usize * 8 + j as usize;
+                    if pixel_index >= n_pixels as usize {
+                        break;
+                    }
                     if (b & (1 << (7 - j))) != 0 {
-                        pixels[i as usize * 8 + j as usize] = Pixel::new((255, 255, 255));
+                        pixels[pixel_index] = Pixel::new((255, 255, 255));
                     }
                 }
             }

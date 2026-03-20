@@ -1,6 +1,6 @@
 extern crate getopts;
 use getopts::Options;
-use std::{env, path::Path};
+use std::{env, path::Path, process::exit};
 
 mod parser;
 mod minipng;
@@ -20,6 +20,7 @@ fn main() {
     let mut opts = Options::new();
     
     opts.optflag("h", "help", "print this help menu");
+    opts.optopt("s", "size", "display the image at a larger size than 1 pixel per pixel", "SIZE");
     
     let matches = match opts.parse(&args[1..]) {
         Ok(m) => { m }
@@ -34,16 +35,33 @@ fn main() {
         return;
     }
     
+    let pixel_size = match matches.opt_str("s") {
+        Some(s) => {
+            match s.parse::<u32>() {
+                Ok(n) => n,
+                Err(e) => {
+                    println!("Error while parsing size argument: {}", e);
+                    exit(1);
+                }
+            }
+        },
+        None => 1,
+    };
+    
     let filepath = Path::new(&matches.free[0]);
     
     let img = match parse_file(filepath) {
         Ok(i) => { i },
         Err(e) => {
             println!("Error while parsing file: {}", e);
-            return;
+            exit(1);
         }
     };
     
     println!();
-    img.print_bw();
+    if img.is_bw() {
+        img.print_bw();
+    } else {
+        img.display_color(pixel_size);
+    }
 }
