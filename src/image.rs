@@ -17,11 +17,11 @@ impl Pixel {
 pub struct Image {
     size: (u32, u32),
     pixels: Vec<Pixel>,
-    comments: Vec<String>,
 }
 
+// This struct represents an image, independently of the file format it was parsed from
 impl Image {
-    pub fn new(size: (u32, u32), pixels: Vec<Pixel>, comments: Vec<String>) -> Self {
+    pub fn new(size: (u32, u32), pixels: Vec<Pixel>) -> Self {
         if size.0 == 0 || size.1 == 0 {
             panic!("Image width and height must be greater than 0");
         }
@@ -33,21 +33,16 @@ impl Image {
         Self {
             size,
             pixels,
-            comments,
         }
     }
     
-    pub fn size(&self) -> (u32, u32) {
-        self.size
-    }
+    // pub fn size(&self) -> (u32, u32) {
+    //     self.size
+    // }
 
-    pub fn pixels(&self) -> &Vec<Pixel> {
-        &self.pixels
-    }
-    
-    pub fn comments(&self) -> &Vec<String> {
-        &self.comments
-    }
+    // pub fn pixels(&self) -> &Vec<Pixel> {
+    //     &self.pixels
+    // }
     
     pub fn print_bw(&self) {
         let mut bw = true;
@@ -67,13 +62,9 @@ impl Image {
             println!();
         }
         
-        // for comment in &self.comments {
-        //     println!("{}", comment);
-        // }
-        
         if !bw {
             println!();
-            println!("Warning: Image.print_bw() is meant to print BW images, this one isn't.");
+            println!("Warning: Image.print_bw() is meant to print BW images, this one is not.");
         }
     }
 }

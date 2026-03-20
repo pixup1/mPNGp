@@ -7,6 +7,7 @@ pub enum PixelType {
     TRUECOLOR,
 }
 
+// This struct represents a MiniPNG file and all its data as it is being parsed
 #[derive(Debug)]
 pub struct Minipng {
     pub comments: Vec<String>,

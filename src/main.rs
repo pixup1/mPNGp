@@ -4,7 +4,7 @@ use std::{env, path::Path};
 
 mod parser;
 mod minipng;
-mod pixels;
+mod image;
 
 use parser::parse_file;
 

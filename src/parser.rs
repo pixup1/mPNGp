@@ -2,8 +2,8 @@ use std::{io::Error, fs::File, io::Read, path::Path, io::ErrorKind, str::from_ut
 
 use crate::minipng::Minipng;
 use crate::minipng::PixelType;
-use crate::pixels::Image;
-use crate::pixels::Pixel;
+use crate::image::Image;
+use crate::image::Pixel;
 
 #[derive(Debug)]
 enum BlockType {
@@ -179,7 +179,6 @@ fn parse_minipng(png: &Minipng) -> Result<Image, Error> {
     // if the previous code is correct, these unwraps should never panic
     
     let size = (png.width.unwrap(), png.height.unwrap());
-    let comments = png.comments.clone();
     let mut pixels = Vec::new();
     
     let n_pixels = size.0 * size.1;
@@ -208,19 +207,53 @@ fn parse_minipng(png: &Minipng) -> Result<Image, Error> {
             }
         },
         PixelType::GRAYSCALE => {
-            todo!();
+            let expected_length = n_pixels;
+            let actual_length = png.data.len() as u32;
+        
+            if actual_length != expected_length {
+                return Err(Error::new(ErrorKind::InvalidData, format!("Data block length must be equal to width * height for pixel type GRAYSCALE (expected {}, got {})", expected_length, actual_length)));
+            }
+            
+            for i in 0..actual_length {
+                let b = png.data[i as usize];
+                pixels[i as usize] = Pixel::new((b, b, b));
+            }
         },
         PixelType::PALETTE => {
-            todo!();
+            let expected_length = n_pixels;
+            let actual_length = png.data.len() as u32;
+        
+            if actual_length != expected_length {
+                return Err(Error::new(ErrorKind::InvalidData, format!("Data block length must be equal to width * height for pixel type PALETTE (expected {}, got {})", expected_length, actual_length)));
+            }
+            
+            for i in 0..actual_length {
+                let index = png.data[i as usize] as usize;
+                if index >= png.palette.as_ref().unwrap().len() {
+                    return Err(Error::new(ErrorKind::InvalidData, format!("Palette index out of bounds: {} (palette size is {})", index, png.palette.as_ref().unwrap().len())));
+                }
+                pixels[i as usize] = Pixel::new(png.palette.as_ref().unwrap()[index]);
+            }
         },
         PixelType::TRUECOLOR => {
-            todo!();
+            let expected_length = n_pixels * 3;
+            let actual_length = png.data.len() as u32;
+        
+            if actual_length != expected_length {
+                return Err(Error::new(ErrorKind::InvalidData, format!("Data block length must be equal to width * height * 3 for pixel type TRUECOLOR (expected {}, got {})", expected_length, actual_length)));
+            }
+            
+            for i in 0..n_pixels {
+                let r = png.data[(i * 3) as usize];
+                let g = png.data[(i * 3 + 1) as usize];
+                let b = png.data[(i * 3 + 2) as usize];
+                pixels[i as usize] = Pixel::new((r, g, b));
+            }
         }
     }
     
     return Ok(Image::new(
         size,
         pixels,
-        comments,
     ));
 }
